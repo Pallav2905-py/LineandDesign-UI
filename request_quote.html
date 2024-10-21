@@ -389,7 +389,8 @@
                     <a class="btn btn-outline-light rounded-circle text-center mr-2 px-0"
                         style="width: 38px; height: 38px;" href="#"><i class="fab fa-linkedin-in"></i></a>
                     <a class="btn btn-outline-light rounded-circle text-center mr-2 px-0"
-                        style="width: 38px; height: 38px;" href="https://www.instagram.com/lineanddesign.in/"><i class="fab fa-instagram"></i></a>
+                        style="width: 38px; height: 38px;" href="https://www.instagram.com/lineanddesign.in/"><i
+                            class="fab fa-instagram"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-5">
@@ -397,8 +398,10 @@
                 <div class="d-flex flex-column justify-content-start">
                     <a class="text-white mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>Home</a>
                     <a class="text-white mb-2" href="about.html"><i class="fa fa-angle-right mr-2"></i>About Us</a>
-                    <a class="text-white mb-2" href="service.html"><i class="fa fa-angle-right mr-2"></i>Our Services</a>
-                    <a class="text-white mb-2" href="project.html"><i class="fa fa-angle-right mr-2"></i>Our Projects</a>
+                    <a class="text-white mb-2" href="service.html"><i class="fa fa-angle-right mr-2"></i>Our
+                        Services</a>
+                    <a class="text-white mb-2" href="project.html"><i class="fa fa-angle-right mr-2"></i>Our
+                        Projects</a>
                     <a class="text-white" href="contact.html"><i class="fa fa-angle-right mr-2"></i>Contact Us</a>
                 </div>
             </div>
@@ -430,71 +433,63 @@
 
     <!-- JavaScript Libraries -->
     <script>
-        // Debounce function to limit the rate of calls to a function
-        function debounce(func, delay) {
-            let timeout;
-            return function (...args) {
-                const context = this;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), delay);
-            };
-        }
-
-        async function submitForm(event) {
-            event.preventDefault(); // Prevent default form submission
-            event.stopPropagation(); // Stop the event from bubbling up
-
+        document.addEventListener("DOMContentLoaded", function () {
+            const contactForm = document.getElementById("contactForm");
             const submitButton = document.getElementById('sendMessageButton');
-            submitButton.disabled = true; // Disable the button to prevent multiple submissions
 
-            // Get values from the form
-            const name = document.getElementById('name').value.trim();
-            const homeAddress = document.getElementById('homeAddress').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const interiorType = document.getElementById('interiorType').value.trim();
-            const size = document.getElementById('size').value.trim();
+            contactForm.addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent the default form submission
 
-            // Validate form data
-            if (!name || !homeAddress || !phone || !interiorType || !size) {
-                document.getElementById('success').innerHTML = '<div class="alert alert-danger">Please fill in all fields.</div>';
-                submitButton.disabled = false; // Re-enable button
-                return; // Exit the function early
-            }
+                // Disable the submit button to prevent multiple submissions
+                submitButton.disabled = true;
 
-            // Prepare the request body
-            const requestBody = {
-                name,
-                homeAddress,
-                phone,
-                interiorType,
-                size,
-            };
+                // Collect the form data
+                const name = document.getElementById("name").value;
+                const homeAddress = document.getElementById("homeAddress").value;
+                const phone = document.getElementById("phone").value;
+                const interiorType = document.getElementById("interiorType").value;
+                const size = document.getElementById("size").value;
 
-            try {
-                const response = await fetch('http://localhost:3001/quote', {
-                    method: 'POST',
+                // Prepare the data to send
+                const data = {
+                    name: name,
+                    homeAddress: homeAddress,
+                    phone: phone,
+                    interiorType: interiorType,
+                    size: size
+                };
+
+                // Send the POST request
+                fetch("https://line-and-design.onrender.com/quote", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json',
+                        "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(requestBody),
-                });
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json(); // Parse the JSON response
+                    })
+                    .then(data => {
+                        // Handle the response from the server
+                        console.log("Success:", data);
+                        document.getElementById("success").innerHTML = "<div class='alert alert-success'>Quote request submitted successfully!</div>";
+                        contactForm.reset(); // Reset the form
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        document.getElementById("success").innerHTML = "<div class='alert alert-danger'>There was an error sending your message. Please try again.</div>";
+                    })
+                    .finally(() => {
+                        // Re-enable the submit button after the request is complete
+                        submitButton.disabled = false;
+                    });
+            });
+        });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-                document.getElementById('success').innerHTML = '<div class="alert alert-success">Quote request submitted successfully!</div>';
-                document.getElementById('contactForm').reset(); // Reset the form after successful submission
-            } catch (error) {
-                document.getElementById('success').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-            } finally {
-                submitButton.disabled = false; // Re-enable the button after the request is complete
-            }
-        }
-
-        // Assign the debounced function to form submission
-        document.getElementById('contactForm').onsubmit = debounce(submitForm, 300);
     </script>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
